@@ -1,0 +1,52 @@
+name: lando-drupal
+recipe: drupal9
+config:
+  webroot: web
+  # Define the PHP version (optional).
+  php: '8.0'
+  composer_version: 2-latest
+  # Define web server (optional).
+  # Specify a version like "nginx:1.14".
+  via: 'nginx'
+  # Define database server (optional).
+  database: 'mariadb'
+  # Define drush version.
+  # Use the latest version with '*'.
+  drush: ^10
+  # Enable or disable xdebug.
+  xdebug: false
+  # Use "config" to extend or override service config.
+  config:
+    # Database config overrides can be used for configuring things like
+    # collation, charset, etc.
+    # database: lando/my.cnf
+    php: lando/php.ini
+    # server: lando/server.conf
+    # vhosts: lando/default.conf
+services:
+  # This is the service that contains your application's code.
+  appserver:
+    build:
+      # Run "composer install" automatically during build.
+      - composer install
+    # Additional provisioning commands can be added to "extras".
+    extras:
+      - apt update -y
+      - apt install vim -y
+
+  # Mailhog configuration.
+  mailhog:
+    type: mailhog
+    portforward: true
+    hogfrom:
+      - appserver
+proxy:
+  mailhog:
+    - mail.example.lndo.site
+tooling:
+  # You can use drush from the host like "lando drush status" and so on.
+  # If your drush installation is not in the "vendor" directory in your
+  # project's root, you can set the path to your drush installation as follows.
+  # drush:
+    # service: appserver
+    # cmd: /path/to/my/drush
